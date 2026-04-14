@@ -1,67 +1,43 @@
-# OS
-.DS_Store
-Thumbs.db
-
-# Launcher
-.miroshark.pids
-
-# Environment variables (protect sensitive information)
+# Environment
 .env
-.env.local
-.env.*.local
-.env.development
-.env.test
-.env.production
+*.env.local
 
 # Python
 __pycache__/
-*.py[cod]
-*$py.class
-*.so
+*.pyc
+*.pyo
+*.pyd
 .Python
-.venv/
-venv/
-ENV/
-.eggs/
+backend/.venv/
+backend/venv/
 *.egg-info/
 dist/
 build/
+.uv/
 
-# Node.js
+# Node
 node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# Uploads and simulation data (user data, not source code)
+backend/uploads/
+backend/simulation_data/
+backend/logs/
 
 # IDE
 .vscode/
 .idea/
 *.swp
 *.swo
+.DS_Store
 
-# Testing
+# Docker volumes (managed by Docker, not git)
+neo4j_data/
+neo4j_logs/
+
+# Test artifacts
 .pytest_cache/
 .coverage
 htmlcov/
-
-# Cursor
-.cursor/
-.claude/
-
-# Documentation and test programs
-mydoc/
-mytest/
-
-# Test output artifacts
-backend/e2e_test_output/
-backend/pipeline_test_output/
-
-# Log files
-backend/logs/
-*.log
-
-# Uploaded files
-backend/uploads/
-
-# Docker data
-data/

@@ -1,51 +1,63 @@
+version: "3.9"
+
 services:
+
+  # ── Neo4j Graph Database ───────────────────────────────────────
   neo4j:
     image: neo4j:5.15-community
-    container_name: miroshark-neo4j
-    environment:
-      - NEO4J_AUTH=neo4j/miroshark
+    container_name: miroorca-neo4j
+    restart: unless-stopped
     ports:
-      - "7474:7474"
-      - "7687:7687"
+      - "7474:7474"   # Neo4j browser UI
+      - "7687:7687"   # Bolt protocol (app connection)
+    environment:
+      NEO4J_AUTH: "${NEO4J_USER:-neo4j}/${NEO4J_PASSWORD:-miroorca}"
+      NEO4J_PLUGINS: '["apoc"]'
+      NEO4J_dbms_security_procedures_unrestricted: "apoc.*"
     volumes:
       - neo4j_data:/data
-    restart: unless-stopped
+      - neo4j_logs:/logs
+    healthcheck:
+      test: ["CMD", "cypher-shell", "-u", "neo4j", "-p", "${NEO4J_PASSWORD:-miroorca}", "RETURN 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
 
-  ollama:
-    image: ollama/ollama:latest
-    container_name: miroshark-ollama
+  # ── Backend (Flask API) ────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: ../Dockerfile.backend
+    container_name: miroorca-backend
+    restart: unless-stopped
     ports:
-      - "11434:11434"
-    volumes:
-      - ollama_data:/root/.ollama
-    restart: unless-stopped
-
-  miroshark:
-    image: ghcr.io/aaronjmars/miroshark:latest
-    # Mirror image (replace the address above if pulling is slow)
-    # image: ghcr.nju.edu.cn/aaronjmars/miroshark:latest
-    container_name: miroshark
+      - "5001:5001"
+    env_file:
+      - .env
     environment:
-      - LLM_API_KEY=ollama
-      - LLM_BASE_URL=http://ollama:11434/v1
-      - LLM_MODEL_NAME=qwen2.5:32b
-      - NEO4J_URI=bolt://neo4j:7687
-      - NEO4J_USER=neo4j
-      - NEO4J_PASSWORD=miroshark
-      - EMBEDDING_MODEL=nomic-embed-text
-      - EMBEDDING_BASE_URL=http://ollama:11434
-      - OPENAI_API_KEY=ollama
-      - OPENAI_API_BASE_URL=http://ollama:11434/v1
+      NEO4J_URI: bolt://neo4j:7687
+    volumes:
+      - uploads:/app/uploads
+      - ./backend:/app
+    depends_on:
+      neo4j:
+        condition: service_healthy
+
+  # ── Frontend (Vue.js) ──────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: ../Dockerfile.frontend
+    container_name: miroorca-frontend
+    restart: unless-stopped
     ports:
       - "3000:3000"
-      - "5001:5001"
+    environment:
+      VITE_API_BASE_URL: http://localhost:5001
     depends_on:
-      - neo4j
-      - ollama
-    restart: unless-stopped
-    volumes:
-      - ./backend/uploads:/app/backend/uploads
+      - backend
 
 volumes:
   neo4j_data:
-  ollama_data:
+  neo4j_logs:
+  uploads:

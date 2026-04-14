@@ -1,0 +1,45 @@
+[project]
+name = "miroorca-backend"
+version = "0.1.0"
+description = "MiroOrca backend API"
+requires-python = ">=3.11,<3.13"
+
+dependencies = [
+    # Web framework
+    "flask>=3.0.0",
+    "flask-cors>=4.0.0",
+
+    # LLM / AI
+    "openai>=1.30.0",
+    "anthropic>=0.25.0",
+
+    # Graph database
+    "neo4j>=5.15.0",
+
+    # Embeddings / vector search
+    "numpy>=1.26.0",
+
+    # Document processing
+    "pypdf>=4.0.0",
+    "python-dotenv>=1.0.0",
+
+    # Async / task management
+    "celery>=5.3.0",
+
+    # Utilities
+    "pyyaml>=6.0.1",
+    "rich>=13.7.0",
+    "python-multipart>=0.0.9",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+dev-dependencies = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+    "black>=24.0.0",
+    "ruff>=0.3.0",
+]
